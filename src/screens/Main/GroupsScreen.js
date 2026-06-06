@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput, Modal, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput, Modal, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import BackgroundWrapper from '../../components/BackgroundWrapper';
 import { colors } from '../../styles/theme';
+
+const pencilIcon = require('../../../assets/images/pencil.png');
+const trashIcon = require('../../../assets/images/trash-can.png');
 
 export default function GroupsScreen({ navigation }) {
   const { groups, addGroup, updateGroup, deleteGroup, recipes } = useData();
@@ -72,10 +75,10 @@ export default function GroupsScreen({ navigation }) {
         {isOwner && (
           <View style={styles.actions}>
             <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}>
-              <Text style={styles.iconText}>✏️</Text>
+              <Image source={pencilIcon} style={styles.iconImage} resizeMode="contain" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => confirmDelete(item.id)} style={styles.iconBtn}>
-              <Text style={styles.iconText}>🗑️</Text>
+              <Image source={trashIcon} style={styles.iconImage} resizeMode="contain" />
             </TouchableOpacity>
           </View>
         )}
@@ -194,8 +197,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.rosaClarito,
     borderRadius: 8,
   },
-  iconText: {
-    fontSize: 18,
+  iconImage: {
+    width: 18,
+    height: 18,
+    tintColor: colors.fucsiaOscuro,
   },
   fab: {
     position: 'absolute',

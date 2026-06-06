@@ -5,6 +5,9 @@ import { useData } from '../../context/DataContext';
 import BackgroundWrapper from '../../components/BackgroundWrapper';
 import { colors } from '../../styles/theme';
 
+const pencilIcon = require('../../../assets/images/pencil.png');
+const trashIcon = require('../../../assets/images/trash-can.png');
+
 export default function RecipeDetailScreen({ route, navigation }) {
   const { recipes, deleteRecipe, updateRecipe, groups } = useData();
   const currentRecipe = recipes.find(r => r.id === route.params.recipe.id) || route.params.recipe;
@@ -91,15 +94,17 @@ export default function RecipeDetailScreen({ route, navigation }) {
           {isOwner && (
             <View style={styles.actionRow}>
               <TouchableOpacity 
-                style={[styles.button, styles.editButton]} 
+                style={[styles.button, styles.buttonRow, styles.editButton]} 
                 onPress={() => navigation.navigate('RecipeForm', { recipe: currentRecipe })}
               >
+                <Image source={pencilIcon} style={styles.buttonIcon} resizeMode="contain" />
                 <Text style={styles.buttonText}>Editar</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={[styles.button, styles.deleteButton]} 
+                style={[styles.button, styles.buttonRow, styles.deleteButton]} 
                 onPress={handleDelete}
               >
+                <Image source={trashIcon} style={styles.buttonIcon} resizeMode="contain" />
                 <Text style={styles.buttonText}>Borrar</Text>
               </TouchableOpacity>
             </View>
@@ -238,11 +243,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editButton: {
-    backgroundColor: colors.azul,
+    backgroundColor: colors.fucsia,
     marginRight: 5,
   },
   deleteButton: {
-    backgroundColor: colors.rojo,
+    backgroundColor: colors.negro,
     marginLeft: 5,
   },
   buttonText: {
@@ -253,6 +258,17 @@ const styles = StyleSheet.create({
   groupsButton: {
     backgroundColor: colors.fucsiaOscuro,
     marginTop: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    width: 18,
+    height: 18,
+    tintColor: 'white',
+    marginRight: 8,
   },
   modalOverlay: {
     flex: 1,

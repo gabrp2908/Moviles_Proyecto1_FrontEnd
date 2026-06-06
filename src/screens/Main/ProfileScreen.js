@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import BackgroundWrapper from '../../components/BackgroundWrapper';
 import { colors } from '../../styles/theme';
+
+const pencilIcon = require('../../../assets/images/pencil.png');
+const trashIcon = require('../../../assets/images/trash-can.png');
+const logoutIcon = require('../../../assets/images/logout.png');
 
 export default function ProfileScreen() {
   const { currentUser, updateProfile, deleteAccount, logout } = useAuth();
@@ -116,16 +120,19 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
+              <TouchableOpacity style={[styles.button, styles.buttonRow]} onPress={() => setIsEditing(true)}>
+                <Image source={pencilIcon} style={styles.buttonIcon} resizeMode="contain" />
                 <Text style={styles.buttonText}>Editar Perfil</Text>
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={logout}>
+            <TouchableOpacity style={[styles.button, styles.logoutButton, styles.buttonRow]} onPress={logout}>
+              <Image source={logoutIcon} style={styles.buttonIcon} resizeMode="contain" />
               <Text style={styles.buttonText}>Cerrar Sesión</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={handleDeleteSequence}>
+            <TouchableOpacity style={[styles.button, styles.deleteButton, styles.buttonRow]} onPress={handleDeleteSequence}>
+              <Image source={trashIcon} style={styles.buttonIcon} resizeMode="contain" />
               <Text style={styles.buttonText}>Borrar Cuenta</Text>
             </TouchableOpacity>
 
@@ -199,6 +206,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems: 'center',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    width: 18,
+    height: 18,
+    tintColor: 'white',
+    marginRight: 8,
+  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
@@ -215,13 +233,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'gray',
   },
   logoutButton: {
-    backgroundColor: colors.azul,
+    backgroundColor: colors.fucsiaOscuro,
     marginTop: 20,
   },
   deleteButton: {
-    backgroundColor: colors.rojo,
+    backgroundColor: colors.negro,
     marginTop: 30,
     borderWidth: 2,
-    borderColor: 'darkred',
+    borderColor: 'black',
   }
 });
