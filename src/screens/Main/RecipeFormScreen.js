@@ -23,6 +23,11 @@ export default function RecipeFormScreen({ route, navigation }) {
   const [observations, setObservations] = useState(recipe?.observations || '');
   const [selectedGroups, setSelectedGroups] = useState(recipe?.groupIds || []);
   const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [photo]);
 
   const handlePickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -87,8 +92,12 @@ export default function RecipeFormScreen({ route, navigation }) {
 
           <Text style={styles.label}>Foto</Text>
           <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-            {photo ? (
-              <Image source={{ uri: photo }} style={styles.imagePreview} />
+            {photo && !imageFailed ? (
+              <Image
+                source={{ uri: photo }}
+                style={styles.imagePreview}
+                onError={() => setImageFailed(true)}
+              />
             ) : (
               <Text style={styles.imagePickerText}>Seleccionar Imagen</Text>
             )}

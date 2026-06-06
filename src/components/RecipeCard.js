@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { colors } from '../styles/theme';
 
 export default function RecipeCard({ recipe, onPress, onRemoveFromGroup }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUri = typeof recipe.photo === 'string' ? recipe.photo.trim() : '';
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUri]);
+
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.card} onPress={() => onPress(recipe)}>
-        {recipe.photo ? (
-          <Image source={{ uri: recipe.photo }} style={styles.image} />
+        {imageUri && !imageFailed ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.image}
+            onError={() => setImageFailed(true)}
+          />
         ) : (
           <View style={styles.placeholderImage}>
             <Text style={styles.placeholderText}>Sin Foto</Text>
