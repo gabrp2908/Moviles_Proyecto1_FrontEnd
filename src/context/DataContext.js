@@ -151,8 +151,14 @@ export const DataProvider = ({ children }) => {
 
   const updateRecipe = async (id, recipeData) => {
     try {
-      const payload = buildRecipePayload(recipeData);
-      await apiClient.put(`/recipes/${id}`, payload);
+      const isOnlyGroupUpdate =
+        Object.keys(recipeData).length === 1 &&
+        Array.isArray(recipeData.groupIds);
+
+      if (!isOnlyGroupUpdate) {
+        const payload = buildRecipePayload(recipeData);
+        await apiClient.put(`/recipes/${id}`, payload);
+      }
 
       if (recipeData.groupIds) {
         const prevRecipe = recipes.find((r) => r.id === id);
