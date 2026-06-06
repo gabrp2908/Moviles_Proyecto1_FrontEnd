@@ -4,12 +4,14 @@
     "slug": "CookingApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/cookingapp_icon.jpg",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/cookingapp_icon.jpg"
     },
     "android": {
+      "icon": "./assets/cookingapp_icon.jpg",
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
