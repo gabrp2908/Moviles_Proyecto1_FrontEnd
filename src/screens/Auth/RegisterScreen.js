@@ -26,7 +26,7 @@ export default function RegisterScreen({ navigation }) {
 
     const result = await register({ nombre, apellido, email, password });
     if (!result.success) {
-      Alert.alert('Error', result.message);
+      Alert.alert('Error', String(result.message || 'Error desconocido'));
     }
   };
 

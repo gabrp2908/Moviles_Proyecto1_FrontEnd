@@ -16,7 +16,7 @@ export default function LoginScreen({ navigation }) {
     }
     const result = await login(email, password);
     if (!result.success) {
-      Alert.alert('Error', result.message);
+      Alert.alert('Error', String(result.message || 'Error desconocido'));
     }
   };
 
