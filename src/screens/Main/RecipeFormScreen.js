@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Modal } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useData } from '../../context/DataContext';
 import * as ImagePicker from 'expo-image-picker';
 import BackgroundWrapper from '../../components/BackgroundWrapper';
 import { colors } from '../../styles/theme';
 import { useAuth } from '../../context/AuthContext';
+
+const DIFFICULTY_OPTIONS = ['Fácil', 'Media', 'Difícil'];
 
 export default function RecipeFormScreen({ route, navigation }) {
   const { recipe } = route.params || {};
@@ -16,10 +18,11 @@ export default function RecipeFormScreen({ route, navigation }) {
   const [photo, setPhoto] = useState(recipe?.photo || null);
   const [ingredients, setIngredients] = useState(recipe?.ingredients || '');
   const [prepTime, setPrepTime] = useState(recipe?.prepTime || '');
-  const [difficulty, setDifficulty] = useState(recipe?.difficulty || '');
+  const [difficulty, setDifficulty] = useState(recipe?.difficulty || 'Media');
   const [steps, setSteps] = useState(recipe?.steps || '');
   const [observations, setObservations] = useState(recipe?.observations || '');
   const [selectedGroups, setSelectedGroups] = useState(recipe?.groupIds || []);
+  const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
 
   const handlePickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -107,9 +110,42 @@ export default function RecipeFormScreen({ route, navigation }) {
             </View>
             <View style={styles.half}>
               <Text style={styles.label}>Dificultad</Text>
-              <TextInput style={styles.input} value={difficulty} onChangeText={setDifficulty} placeholder="Ej: Fácil, Media" />
+              <TouchableOpacity
+                style={[styles.input, styles.dropdownButton]}
+                onPress={() => setShowDifficultyDropdown(true)}
+              >
+                <Text style={styles.dropdownText}>{difficulty || 'Selecciona dificultad'}</Text>
+                <Text style={styles.dropdownIcon}>▼</Text>
+              </TouchableOpacity>
             </View>
           </View>
+
+          <Modal
+            visible={showDifficultyDropdown}
+            transparent={true}
+            animationType="fade"
+          >
+            <TouchableWithoutFeedback onPress={() => setShowDifficultyDropdown(false)}>
+              <View style={styles.dropdownOverlay}>
+                <TouchableWithoutFeedback>
+                  <View style={styles.dropdownMenu}>
+                    {DIFFICULTY_OPTIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option}
+                        style={styles.dropdownOption}
+                        onPress={() => {
+                          setDifficulty(option);
+                          setShowDifficultyDropdown(false);
+                        }}
+                      >
+                        <Text style={styles.dropdownOptionText}>{option}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
 
           <Text style={styles.label}>Pasos</Text>
           <TextInput 
@@ -193,6 +229,44 @@ const styles = StyleSheet.create({
   },
   half: {
     width: '48%',
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dropdownText: {
+    color: colors.negro,
+    fontSize: 16,
+  },
+  dropdownIcon: {
+    color: colors.fucsiaOscuro,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  dropdownOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  dropdownMenu: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.fucsia,
+    overflow: 'hidden',
+  },
+  dropdownOption: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.rosaClarito,
+  },
+  dropdownOptionText: {
+    fontSize: 16,
+    color: colors.fucsiaOscuro,
+    fontWeight: 'bold',
   },
   imagePicker: {
     backgroundColor: colors.rosaClarito,

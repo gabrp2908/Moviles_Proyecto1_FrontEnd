@@ -39,7 +39,7 @@ export const DataProvider = ({ children }) => {
       description: backendRecipe.description,
       observations: backendRecipe.description,
       prepTime: backendRecipe.prep_time_minutes || '',
-      difficulty: 'Media',
+      difficulty: backendRecipe.difficulty || 'Media',
       ingredients: (backendRecipe.ingredients || [])
         .map(i => `${i.quantity || ''} ${i.unit || ''} ${i.name}`.trim())
         .join('\n'),
@@ -125,6 +125,10 @@ export const DataProvider = ({ children }) => {
     const prepTimeText = (recipeData.prepTime || '').trim();
     if (prepTimeText) {
       payload.prep_time_minutes = prepTimeText;
+    }
+
+    if (recipeData.difficulty) {
+      payload.difficulty = recipeData.difficulty;
     }
 
     const ingredients = parseIngredients(recipeData.ingredients);
