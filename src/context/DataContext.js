@@ -110,10 +110,12 @@ export const DataProvider = ({ children }) => {
   };
 
   const mapBackendRecipeToFrontend = (backendRecipe) => {
+    const photo = toAbsolutePhotoUrl(backendRecipe.image_url);
+
     return {
       id: backendRecipe.recipe_id?.toString(),
       title: backendRecipe.title,
-      photo: toAbsolutePhotoUrl(backendRecipe.image_url),
+      photo,
       description: backendRecipe.description,
       observations: backendRecipe.description,
       prepTime: backendRecipe.prep_time_minutes || '',
