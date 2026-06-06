@@ -21,6 +21,35 @@ export const DataProvider = ({ children }) => {
     }
   }, [currentUser]);
 
+  const isLocalFileUri = (value) =>
+    typeof value === 'string' && (value.startsWith('file://') || value.startsWith('content://'));
+
+  const toAbsolutePhotoUrl = (value) => {
+    if (!value || typeof value !== 'string') return value;
+    if (value.startsWith('/')) {
+      return `${apiClient.defaults.baseURL}${value}`;
+    }
+    return value;
+  };
+
+  const uploadRecipePhoto = async (recipeId, photoUri) => {
+    const extension = photoUri.split('.').pop()?.toLowerCase();
+    const mimeType = extension ? `image/${extension === 'jpg' ? 'jpeg' : extension}` : 'image/jpeg';
+
+    const formData = new FormData();
+    formData.append('photo', {
+      uri: photoUri,
+      name: `recipe-${Date.now()}.${extension || 'jpg'}`,
+      type: mimeType,
+    });
+
+    await apiClient.put(`/recipes/${recipeId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  };
+
   const mapBackendRecipeToFrontend = (backendRecipe) => {
     const rawPhoto = backendRecipe.image_url;
     let photo = rawPhoto;
@@ -35,7 +64,11 @@ export const DataProvider = ({ children }) => {
     return {
       id: backendRecipe.recipe_id?.toString(),
       title: backendRecipe.title,
+<<<<<<< HEAD
       photo,
+=======
+      photo: toAbsolutePhotoUrl(backendRecipe.image_url),
+>>>>>>> 256db6ee1b660654ef4892feaf2aa904e5f1473b
       description: backendRecipe.description,
       observations: backendRecipe.description,
       prepTime: backendRecipe.prep_time_minutes || '',
@@ -115,7 +148,7 @@ export const DataProvider = ({ children }) => {
       is_public: recipeData.isPublic !== undefined ? recipeData.isPublic : true,
     };
 
-    if (recipeData.photo) {
+    if (recipeData.photo && !isLocalFileUri(recipeData.photo)) {
       payload.image_url = recipeData.photo;
     }
     if (recipeData.observations) {
@@ -150,6 +183,10 @@ export const DataProvider = ({ children }) => {
       const res = await apiClient.post('/recipes', payload);
       const newRecipeId = res.data.recipe_id || res.data.id;
 
+      if (newRecipeId && isLocalFileUri(recipeData.photo)) {
+        await uploadRecipePhoto(newRecipeId, recipeData.photo);
+      }
+
       if (recipeData.groupIds && recipeData.groupIds.length > 0 && newRecipeId) {
         for (const groupId of recipeData.groupIds) {
           await apiClient.post(`/recipes/${newRecipeId}/groups/${groupId}`).catch((e) => console.error(e));
@@ -172,6 +209,10 @@ export const DataProvider = ({ children }) => {
       if (!isOnlyGroupUpdate) {
         const payload = buildRecipePayload(recipeData);
         await apiClient.put(`/recipes/${id}`, payload);
+
+        if (isLocalFileUri(recipeData.photo)) {
+          await uploadRecipePhoto(id, recipeData.photo);
+        }
       }
 
       if (recipeData.groupIds) {
