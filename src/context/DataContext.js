@@ -28,7 +28,7 @@ export const DataProvider = ({ children }) => {
       photo: backendRecipe.image_url,
       description: backendRecipe.description,
       observations: backendRecipe.description,
-      prepTime: backendRecipe.prep_time_minutes?.toString() || '',
+      prepTime: backendRecipe.prep_time_minutes || '',
       difficulty: 'Media',
       ingredients: (backendRecipe.ingredients || [])
         .map(i => `${i.quantity || ''} ${i.unit || ''} ${i.name}`.trim())
@@ -38,7 +38,7 @@ export const DataProvider = ({ children }) => {
         .map(s => s.instruction)
         .join('\n'),
       groupIds: (backendRecipe.groups || []).map(g => g.group_id?.toString()),
-      createdBy: backendRecipe.author_id?.toString() === currentUser?.id ? currentUser?.email : backendRecipe.author_id?.toString(),
+      createdBy: backendRecipe.author_email || (backendRecipe.author_id?.toString() === currentUser?.id ? currentUser?.email : backendRecipe.author_id?.toString()),
       isPublic: backendRecipe.is_public,
     };
   };
@@ -112,9 +112,9 @@ export const DataProvider = ({ children }) => {
       payload.description = recipeData.observations;
     }
 
-    const prepTimeNumber = parseInt(recipeData.prepTime, 10);
-    if (!Number.isNaN(prepTimeNumber)) {
-      payload.prep_time_minutes = prepTimeNumber;
+    const prepTimeText = (recipeData.prepTime || '').trim();
+    if (prepTimeText) {
+      payload.prep_time_minutes = prepTimeText;
     }
 
     const ingredients = parseIngredients(recipeData.ingredients);
