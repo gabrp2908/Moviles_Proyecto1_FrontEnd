@@ -3,16 +3,33 @@
     "version": ">= 9.0.0"
   },
   "build": {
+    "base": {
+      "cache": {
+        "key": "expo-sdk54-cache-v1",
+        "paths": [
+          ".expo",
+          ".metro-cache",
+          "android/.gradle",
+          "android/build",
+          "ios/Pods",
+          "ios/build"
+        ]
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
     },
-    "production": {}
+    "production": {
+      "extends": "base"
+    }
   }
 }
