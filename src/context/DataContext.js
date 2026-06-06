@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
 import apiClient from '../api/client';
+import { getRecipeImageUrl, normalizeRecipeImageUrl } from '../utils/recipeImage';
 
 const DataContext = createContext();
 
@@ -24,73 +25,6 @@ export const DataProvider = ({ children }) => {
   const isLocalFileUri = (value) =>
     typeof value === 'string' && (value.startsWith('file://') || value.startsWith('content://'));
 
-  const getApiOrigin = () => {
-    try {
-      return new URL(apiClient.defaults.baseURL).origin;
-    } catch {
-      return (apiClient.defaults.baseURL || '').replace(/\/+$/, '');
-    }
-  };
-
-  const joinUrl = (base, path) => `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
-
-  const normalizeSlashes = (value) => value.replace(/\\/g, '/');
-
-  const ensureHttpsWhenPossible = (value, apiOrigin) => {
-    if (!value.startsWith('http://')) return value;
-    if (apiOrigin.startsWith('https://')) {
-      return value.replace(/^http:\/\//i, 'https://');
-    }
-    return value;
-  };
-
-  const encodePathSafely = (value) => {
-    try {
-      return encodeURI(value);
-    } catch {
-      return value;
-    }
-  };
-
-  const toAbsolutePhotoUrl = (value) => {
-    if (!value || typeof value !== 'string') return value;
-
-    const apiOrigin = getApiOrigin();
-    const normalized = normalizeSlashes(value.trim());
-
-    if (!normalized) return normalized;
-
-    // Handle absolute Windows file paths that accidentally got persisted in DB.
-    const uploadsIndex = normalized.toLowerCase().indexOf('/uploads/');
-    if (uploadsIndex >= 0) {
-      const uploadsPath = normalized.slice(uploadsIndex);
-      return encodePathSafely(joinUrl(apiOrigin, uploadsPath));
-    }
-
-    if (/^https?:\/\//i.test(normalized)) {
-      // Replace localhost URLs so images still render on physical devices.
-      const withoutLocalhost = normalized.replace(
-        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i,
-        apiOrigin,
-      );
-      return encodePathSafely(ensureHttpsWhenPossible(withoutLocalhost, apiOrigin));
-    }
-
-    if (normalized.startsWith('uploads/')) {
-      return encodePathSafely(joinUrl(apiOrigin, normalized));
-    }
-
-    if (normalized.startsWith('/')) {
-      return encodePathSafely(joinUrl(apiOrigin, normalized));
-    }
-
-    if (/^[^/]+\.(png|jpe?g|webp|gif)$/i.test(normalized)) {
-      return encodePathSafely(joinUrl(apiOrigin, `/uploads/recipes/${normalized}`));
-    }
-
-    return encodePathSafely(normalized);
-  };
-
   const uploadRecipePhoto = async (recipeId, photoUri) => {
     const extension = photoUri.split('.').pop()?.toLowerCase();
     const mimeType = extension ? `image/${extension === 'jpg' ? 'jpeg' : extension}` : 'image/jpeg';
@@ -110,7 +44,7 @@ export const DataProvider = ({ children }) => {
   };
 
   const mapBackendRecipeToFrontend = (backendRecipe) => {
-    const photo = toAbsolutePhotoUrl(backendRecipe.image_url);
+    const photo = getRecipeImageUrl(backendRecipe);
 
     return {
       id: backendRecipe.recipe_id?.toString(),
@@ -205,7 +139,7 @@ export const DataProvider = ({ children }) => {
     };
 
     if (recipeData.photo && !isLocalFileUri(recipeData.photo)) {
-      payload.image_url = recipeData.photo;
+      payload.image_url = normalizeRecipeImageUrl(recipeData.photo);
     }
     if (observationsText) {
       payload.observations = observationsText;

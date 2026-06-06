@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { colors } from '../styles/theme';
+import { getRecipeImageUrl } from '../utils/recipeImage';
 
 export default function RecipeCard({ recipe, onPress, onRemoveFromGroup }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const imageUri = typeof recipe.photo === 'string' ? recipe.photo.trim() : '';
+  const imageUri = getRecipeImageUrl(recipe) || '';
 
   useEffect(() => {
     setImageFailed(false);

@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import BackgroundWrapper from '../../components/BackgroundWrapper';
 import { colors } from '../../styles/theme';
 import { useAuth } from '../../context/AuthContext';
+import { getRecipeImageUrl } from '../../utils/recipeImage';
 
 const DIFFICULTY_OPTIONS = ['Fácil', 'Media', 'Difícil'];
 
@@ -15,7 +16,7 @@ export default function RecipeFormScreen({ route, navigation }) {
   const { currentUser } = useAuth();
 
   const [title, setTitle] = useState(recipe?.title || '');
-  const [photo, setPhoto] = useState(recipe?.photo || null);
+  const [photo, setPhoto] = useState(getRecipeImageUrl(recipe) || null);
   const [description, setDescription] = useState(recipe?.description || '');
   const [ingredients, setIngredients] = useState(recipe?.ingredients || '');
   const [prepTime, setPrepTime] = useState(recipe?.prepTime || '');

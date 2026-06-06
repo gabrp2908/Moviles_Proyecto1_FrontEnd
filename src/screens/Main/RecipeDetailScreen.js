@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import BackgroundWrapper from '../../components/BackgroundWrapper';
 import { colors } from '../../styles/theme';
+import { getRecipeImageUrl } from '../../utils/recipeImage';
 
 const pencilIcon = require('../../../assets/images/pencil.png');
 const trashIcon = require('../../../assets/images/trash-can.png');
@@ -11,7 +12,7 @@ const trashIcon = require('../../../assets/images/trash-can.png');
 export default function RecipeDetailScreen({ route, navigation }) {
   const { recipes, deleteRecipe, updateRecipe, groups } = useData();
   const currentRecipe = recipes.find(r => r.id === route.params.recipe.id) || route.params.recipe;
-  const imageUri = typeof currentRecipe.photo === 'string' ? currentRecipe.photo.trim() : '';
+  const imageUri = getRecipeImageUrl(currentRecipe) || '';
   
   const { currentUser } = useAuth();
   const [showGroupModal, setShowGroupModal] = useState(false);
