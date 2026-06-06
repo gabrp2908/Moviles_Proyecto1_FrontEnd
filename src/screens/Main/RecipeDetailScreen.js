@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, Modal, FlatList } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
@@ -11,9 +11,15 @@ const trashIcon = require('../../../assets/images/trash-can.png');
 export default function RecipeDetailScreen({ route, navigation }) {
   const { recipes, deleteRecipe, updateRecipe, groups } = useData();
   const currentRecipe = recipes.find(r => r.id === route.params.recipe.id) || route.params.recipe;
+  const imageUri = typeof currentRecipe.photo === 'string' ? currentRecipe.photo.trim() : '';
   
   const { currentUser } = useAuth();
   const [showGroupModal, setShowGroupModal] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUri]);
 
   const isOwner = currentUser?.email === currentRecipe.createdBy;
 
@@ -49,8 +55,12 @@ export default function RecipeDetailScreen({ route, navigation }) {
     <BackgroundWrapper>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
-          {currentRecipe.photo ? (
-            <Image source={{ uri: currentRecipe.photo }} style={styles.image} />
+          {imageUri && !imageFailed ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={styles.image}
+              onError={() => setImageFailed(true)}
+            />
           ) : (
             <View style={styles.placeholderImage}>
               <Text style={styles.placeholderText}>Sin Foto</Text>
