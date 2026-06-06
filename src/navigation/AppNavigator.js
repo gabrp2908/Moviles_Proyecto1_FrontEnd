@@ -1,4 +1,5 @@
 import React from 'react';
+import { Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../context/AuthContext';
@@ -21,18 +22,32 @@ import GroupRecipesScreen from '../screens/Main/GroupRecipesScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const tabIcons = {
+  General: require('../../assets/images/icon_op1.png'),
+  MyRecipes: require('../../assets/images/icon_op2.png'),
+  Groups: require('../../assets/images/icon_op3.png'),
+  Profile: require('../../assets/images/icon_op4.png'),
+};
+
 function TabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerStyle: { backgroundColor: colors.fucsia },
         headerTintColor: colors.blanco,
         headerTitleStyle: { fontFamily: 'BiscuitGlitch', fontSize: 24 },
-        tabBarActiveTintColor: colors.fucsiaOscuro,
+        tabBarActiveTintColor: colors.fucsia,
         tabBarInactiveTintColor: colors.negro,
         tabBarStyle: { backgroundColor: colors.rosaClarito },
-        tabBarLabelStyle: { fontFamily: 'Comic Sans MS', fontWeight: 'bold' }
-      }}
+        tabBarLabelStyle: { fontFamily: 'Comic Sans MS', fontWeight: 'bold' },
+        tabBarIcon: ({ size, color }) => (
+          <Image
+            source={tabIcons[route.name]}
+            style={{ width: size, height: size, tintColor: color }}
+            resizeMode="contain"
+          />
+        ),
+      })}
     >
       <Tab.Screen name="General" component={GeneralRecipesScreen} options={{ title: 'Todas' }} />
       <Tab.Screen name="MyRecipes" component={MyRecipesScreen} options={{ title: 'Mis Recetas' }} />
