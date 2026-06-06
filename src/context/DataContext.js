@@ -51,24 +51,12 @@ export const DataProvider = ({ children }) => {
   };
 
   const mapBackendRecipeToFrontend = (backendRecipe) => {
-    const rawPhoto = backendRecipe.image_url;
-    let photo = rawPhoto;
-    if (photo) {
-      const isAbsolute = typeof photo === 'string' && (photo.startsWith('http://') || photo.startsWith('https://'));
-      if (!isAbsolute) {
-        const base = (apiClient.defaults && apiClient.defaults.baseURL) ? apiClient.defaults.baseURL.replace(/\/$/, '') : '';
-        photo = `${base}${photo.startsWith('/') ? '' : '/'}${photo}`;
-      }
-    }
+    const photo = toAbsolutePhotoUrl(backendRecipe.image_url);
 
     return {
       id: backendRecipe.recipe_id?.toString(),
       title: backendRecipe.title,
-<<<<<<< HEAD
       photo,
-=======
-      photo: toAbsolutePhotoUrl(backendRecipe.image_url),
->>>>>>> 256db6ee1b660654ef4892feaf2aa904e5f1473b
       description: backendRecipe.description,
       observations: backendRecipe.description,
       prepTime: backendRecipe.prep_time_minutes || '',
