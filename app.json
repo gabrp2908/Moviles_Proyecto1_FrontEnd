@@ -7,9 +7,11 @@
     "icon": "./assets/images/cookingapp_icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/cookingapp_icon.jpg"
     },
     "android": {
+      "icon": "./assets/cookingapp_icon.jpg",
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
