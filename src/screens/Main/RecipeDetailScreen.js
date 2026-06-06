@@ -76,6 +76,11 @@ export default function RecipeDetailScreen({ route, navigation }) {
           </View>
 
           <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Descripción</Text>
+            <Text style={styles.text}>{currentRecipe.description}</Text>
+          </View>
+
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Ingredientes</Text>
             <Text style={styles.text}>{currentRecipe.ingredients}</Text>
           </View>

@@ -116,8 +116,9 @@ export const DataProvider = ({ children }) => {
       id: backendRecipe.recipe_id?.toString(),
       title: backendRecipe.title,
       photo,
-      description: backendRecipe.description,
-      observations: backendRecipe.description,
+      createdAt: backendRecipe.created_at,
+      description: backendRecipe.description || '',
+      observations: backendRecipe.observations || '',
       prepTime: backendRecipe.prep_time_minutes || '',
       difficulty: backendRecipe.difficulty || 'Media',
       ingredients: (backendRecipe.ingredients || [])
@@ -160,11 +161,13 @@ export const DataProvider = ({ children }) => {
     return fallbackMessage;
   };
 
-  const loadData = async () => {
+  const loadData = async (generalSort = 'alphabetical') => {
     setIsLoading(true);
     try {
       const [generalRecipesRes, personalRecipesRes, groupsRes] = await Promise.all([
-        apiClient.get('/recipes/general'),
+        apiClient.get('/recipes/general', {
+          params: { sort: generalSort },
+        }),
         apiClient.get('/recipes/personal'),
         apiClient.get('/groups'),
       ]);
@@ -190,21 +193,22 @@ export const DataProvider = ({ children }) => {
   };
 
   const buildRecipePayload = (recipeData) => {
+    const descriptionText = (recipeData.description || '').trim();
+    const prepTimeText = (recipeData.prepTime || '').trim();
+    const observationsText = (recipeData.observations || '').trim();
+
     const payload = {
       title: recipeData.title,
+      description: descriptionText,
+      prep_time_minutes: prepTimeText,
       is_public: recipeData.isPublic !== undefined ? recipeData.isPublic : true,
     };
 
     if (recipeData.photo && !isLocalFileUri(recipeData.photo)) {
       payload.image_url = recipeData.photo;
     }
-    if (recipeData.observations) {
-      payload.description = recipeData.observations;
-    }
-
-    const prepTimeText = (recipeData.prepTime || '').trim();
-    if (prepTimeText) {
-      payload.prep_time_minutes = prepTimeText;
+    if (observationsText) {
+      payload.observations = observationsText;
     }
 
     if (recipeData.difficulty) {

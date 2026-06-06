@@ -12,18 +12,21 @@ const DIFFICULTY_OPTIONS = ['Fácil', 'Media', 'Difícil'];
 export default function RecipeFormScreen({ route, navigation }) {
   const { recipe } = route.params || {};
   const { addRecipe, updateRecipe, groups } = useData();
-   const { currentUser } = useAuth();
+  const { currentUser } = useAuth();
 
   const [title, setTitle] = useState(recipe?.title || '');
   const [photo, setPhoto] = useState(recipe?.photo || null);
+  const [description, setDescription] = useState(recipe?.description || '');
   const [ingredients, setIngredients] = useState(recipe?.ingredients || '');
   const [prepTime, setPrepTime] = useState(recipe?.prepTime || '');
   const [difficulty, setDifficulty] = useState(recipe?.difficulty || 'Media');
   const [steps, setSteps] = useState(recipe?.steps || '');
   const [observations, setObservations] = useState(recipe?.observations || '');
+  const [isPublic, setIsPublic] = useState(recipe?.isPublic ?? true);
   const [selectedGroups, setSelectedGroups] = useState(recipe?.groupIds || []);
   const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setImageFailed(false);
@@ -51,29 +54,39 @@ export default function RecipeFormScreen({ route, navigation }) {
   };
 
   const handleSave = async () => {
-    if (!title || !ingredients || !steps || !prepTime || !difficulty) {
-      Alert.alert('Error', 'Por favor llena los campos principales (Título, Ingredientes, Tiempo, Dificultad, Pasos)');
+    if (isSubmitting) return;
+
+    if (!title || !description || !ingredients || !steps || !prepTime || !difficulty) {
+      Alert.alert('Error', 'Por favor llena los campos principales (Título, Descripción, Ingredientes, Tiempo, Dificultad, Pasos)');
       return;
     }
+
+    setIsSubmitting(true);
 
     const recipeData = {
       title,
       photo,
+      description,
       ingredients,
       prepTime,
       difficulty,
       steps,
       observations,
+      isPublic,
       groupIds: selectedGroups
     };
 
-    if (recipe) {
-      await updateRecipe(recipe.id, recipeData);
-    } else {
-      await addRecipe(recipeData);
-    }
+    try {
+      if (recipe) {
+        await updateRecipe(recipe.id, recipeData);
+      } else {
+        await addRecipe(recipeData);
+      }
 
-    navigation.goBack();
+      navigation.goBack();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -102,6 +115,15 @@ export default function RecipeFormScreen({ route, navigation }) {
               <Text style={styles.imagePickerText}>Seleccionar Imagen</Text>
             )}
           </TouchableOpacity>
+
+          <Text style={styles.label}>Descripción</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Resumen de la receta..."
+            multiline
+          />
 
           <Text style={styles.label}>Ingredientes</Text>
           <TextInput 
@@ -174,6 +196,22 @@ export default function RecipeFormScreen({ route, navigation }) {
             multiline 
           />
 
+          <Text style={styles.label}>Visible para todos</Text>
+          <View style={styles.visibilityRow}>
+            <TouchableOpacity
+              style={[styles.visibilityBtn, isPublic && styles.visibilityBtnActive]}
+              onPress={() => setIsPublic(true)}
+            >
+              <Text style={[styles.visibilityBtnText, isPublic && styles.visibilityBtnTextActive]}>Si</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.visibilityBtn, !isPublic && styles.visibilityBtnActive]}
+              onPress={() => setIsPublic(false)}
+            >
+              <Text style={[styles.visibilityBtnText, !isPublic && styles.visibilityBtnTextActive]}>No</Text>
+            </TouchableOpacity>
+          </View>
+
              {groups.filter(g => g.createdBy === currentUser?.email).length > 0 && (
             <View style={styles.groupsSection}>
               <Text style={styles.label}>Asignar a Grupos:</Text>
@@ -193,8 +231,12 @@ export default function RecipeFormScreen({ route, navigation }) {
             </View>
           )}
 
-          <TouchableOpacity style={styles.button} onPress={handleSave}>
-            <Text style={styles.buttonText}>Guardar Receta</Text>
+          <TouchableOpacity
+            style={[styles.button, isSubmitting && styles.buttonDisabled]}
+            onPress={handleSave}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.buttonText}>{isSubmitting ? 'Guardando...' : 'Guardar Receta'}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
@@ -332,9 +374,37 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
   },
+  buttonDisabled: {
+    opacity: 0.65,
+  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  visibilityRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 5,
+  },
+  visibilityBtn: {
+    flex: 1,
+    backgroundColor: colors.rosaClarito,
+    borderWidth: 2,
+    borderColor: colors.rosa,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  visibilityBtnActive: {
+    backgroundColor: colors.fucsia,
+    borderColor: colors.fucsiaOscuro,
+  },
+  visibilityBtnText: {
+    color: colors.fucsiaOscuro,
+    fontWeight: 'bold',
+  },
+  visibilityBtnTextActive: {
+    color: 'white',
   }
 });

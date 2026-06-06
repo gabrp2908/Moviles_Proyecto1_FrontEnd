@@ -3,16 +3,41 @@ import { View, FlatList, StyleSheet, TouchableOpacity, Text } from 'react-native
 import RecipeCard from './RecipeCard';
 import { colors } from '../styles/theme';
 
-export default function RecipeList({ recipes, navigation, onRemoveFromGroup }) {
-  const [sortOption, setSortOption] = useState('alpha'); // 'alpha' | 'date'
+const toMillis = (value) => {
+  const date = new Date(value || 0);
+  const ms = date.getTime();
+  return Number.isFinite(ms) ? ms : 0;
+};
+
+export default function RecipeList({
+  recipes,
+  navigation,
+  onRemoveFromGroup,
+  sortOption: externalSortOption,
+  onSortChange,
+  refreshing = false,
+  onRefresh,
+}) {
+  const [internalSortOption, setInternalSortOption] = useState('alphabetical');
+  const isExternallySorted = typeof externalSortOption === 'string' && typeof onSortChange === 'function';
+  const sortOption = isExternallySorted ? externalSortOption : internalSortOption;
+
+  const handleSortChange = (value) => {
+    if (isExternallySorted) {
+      onSortChange(value);
+      return;
+    }
+    setInternalSortOption(value);
+  };
 
   const sortedRecipes = [...recipes].sort((a, b) => {
-    if (sortOption === 'alpha') {
+    if (sortOption === 'alphabetical') {
       return a.title.localeCompare(b.title);
-    } else {
-      return new Date(b.createdAt) - new Date(a.createdAt);
     }
+    return toMillis(b.createdAt) - toMillis(a.createdAt);
   });
+
+  const listData = isExternallySorted ? recipes : sortedRecipes;
 
   return (
     <View style={styles.container}>
@@ -20,22 +45,22 @@ export default function RecipeList({ recipes, navigation, onRemoveFromGroup }) {
         <Text style={styles.sortLabel}>Ordenar por:</Text>
         <View style={styles.buttonsRow}>
           <TouchableOpacity 
-            style={[styles.sortBtn, sortOption === 'alpha' && styles.sortBtnActive]}
-            onPress={() => setSortOption('alpha')}
+            style={[styles.sortBtn, sortOption === 'alphabetical' && styles.sortBtnActive]}
+            onPress={() => handleSortChange('alphabetical')}
           >
-            <Text style={[styles.sortBtnText, sortOption === 'alpha' && styles.sortBtnTextActive]}>A-Z</Text>
+            <Text style={[styles.sortBtnText, sortOption === 'alphabetical' && styles.sortBtnTextActive]}>A-Z</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.sortBtn, sortOption === 'date' && styles.sortBtnActive]}
-            onPress={() => setSortOption('date')}
+            style={[styles.sortBtn, sortOption === 'recent' && styles.sortBtnActive]}
+            onPress={() => handleSortChange('recent')}
           >
-            <Text style={[styles.sortBtnText, sortOption === 'date' && styles.sortBtnTextActive]}>Recientes</Text>
+            <Text style={[styles.sortBtnText, sortOption === 'recent' && styles.sortBtnTextActive]}>Recientes</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <FlatList
-        data={sortedRecipes}
+        data={listData}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <RecipeCard 
@@ -44,6 +69,8 @@ export default function RecipeList({ recipes, navigation, onRemoveFromGroup }) {
             onRemoveFromGroup={onRemoveFromGroup}
           />
         )}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
         contentContainerStyle={styles.list}
         ListEmptyComponent={<Text style={styles.empty}>No hay recetas disponibles.</Text>}
       />
